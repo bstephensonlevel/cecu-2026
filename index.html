@@ -10,6 +10,13 @@
 
   <style>
     /* ============================================
+       BASE RESET (replaces Tailwind preflight)
+       ============================================ */
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; }
+    h1, h2, h3, h4, h5, h6, p, figure { margin: 0; }
+
+    /* ============================================
        LEVEL BRAND FOUNDATION (from brand.css)
        ============================================ */
     :root {
@@ -210,27 +217,88 @@
       mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/0.7rem no-repeat;
     }
 
-    /* Presenter + team cards */
+    /* Presenter + team cards (flip) */
     .people-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 2.5rem; }
     .person {
-      background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-lg);
-      overflow: hidden; display: flex; flex-direction: column;
+      position: relative; height: 432px;
+      perspective: 1500px; cursor: pointer;
+      border-radius: var(--radius-lg);
+    }
+    .person:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+    .flip-inner {
+      position: relative; width: 100%; height: 100%;
+      transition: transform 0.6s cubic-bezier(.2,.7,.2,1);
+      transform-style: preserve-3d;
+    }
+    .person.flipped .flip-inner { transform: rotateY(180deg); }
+    .flip-front, .flip-back {
+      position: absolute; inset: 0;
+      -webkit-backface-visibility: hidden; backface-visibility: hidden;
+      background: #fff; border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .flip-back {
+      transform: rotateY(180deg);
+      padding: 1.5rem 1.5rem 2.6rem;
     }
     .person-photo {
-      aspect-ratio: 4 / 3; width: 100%;
+      height: 252px; width: 100%; flex: none;
       background: repeating-linear-gradient(135deg, #EDEFF6, #EDEFF6 12px, #E4E8F3 12px, #E4E8F3 24px);
       display: flex; align-items: center; justify-content: center;
       color: #9aa3b8; font-family: var(--font-display); font-weight: 700; font-size: 0.78rem; letter-spacing: 0.05em;
     }
-    .person-body { padding: 1.25rem 1.25rem 1.5rem; }
-    .person-name { font-family: var(--font-display); font-weight: 900; font-size: 1.1rem; }
+    .person-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .flip-front .person-body { padding: 1.1rem 1.25rem; }
+    .person-name { font-family: var(--font-display); font-weight: 900; font-size: 1.1rem; line-height: 1.15; }
     .person-role { font-size: 0.85rem; color: #6B7280; margin-bottom: 0.6rem; font-weight: 600; }
-    .person-bio { font-size: 0.9rem; color: #374151; }
+    .person-bio { font-size: 0.9rem; color: #374151; overflow-y: auto; }
     .person-bio.placeholder { color: #9CA3AF; font-style: italic; }
+    .flip-cue {
+      position: absolute; right: 0.8rem; bottom: 0.65rem;
+      width: 1.35rem; height: 1.35rem; color: #000; pointer-events: none;
+    }
+    .flip-cue svg { width: 100%; height: 100%; display: block; }
 
     .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2.5rem; }
-    .team-card { text-align: left; }
-    .team-card .person-photo { aspect-ratio: 1 / 1; }
+    .person.team-card { height: 366px; }
+    .person.team-card .person-photo { height: 218px; }
+
+    /* Gated download modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(7,10,18,0.7); backdrop-filter: blur(3px);
+      padding: 1.5rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      position: relative; background: #fff; color: #000;
+      width: 100%; max-width: 460px;
+      border-radius: var(--radius-lg); padding: 2rem 2rem 1.5rem;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.4);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-close-x {
+      position: absolute; top: 0.9rem; right: 1rem;
+      background: none; border: none; cursor: pointer;
+      font-size: 1.5rem; line-height: 1; color: #6B7280; padding: 0.25rem;
+    }
+    .modal-close-x:hover { color: #000; }
+    .modal-box h3 { font-size: 1.4rem; margin-bottom: 0.35rem; }
+    .modal-box .sub { font-size: 0.88rem; color: #6B7280; margin-bottom: 1.25rem; }
+    .modal-close-link {
+      display: inline-block; margin-top: 1rem;
+      font-size: 0.85rem; color: #6B7280; text-decoration: underline; cursor: pointer;
+      background: none; border: none; font-family: var(--font-body);
+    }
+    .modal-close-link:hover { color: #000; }
+    .modal-success { display: none; text-align: center; }
+    .modal-success .check {
+      width: 52px; height: 52px; margin: 0 auto 1rem; border-radius: 50%;
+      background: var(--color-green); display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; color: #000;
+    }
 
     /* Benchmarks */
     .benchmarks-wrap { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 3rem; align-items: center; }
@@ -392,32 +460,62 @@
     </ul>
 
     <div style="margin-top:2rem;">
-      <a class="btn btn-secondary btn-lg" href="#" target="_blank" rel="noopener">View the CECU agenda →</a>
+      <a class="btn btn-secondary btn-lg" href="https://careered26.eventscribe.net/fsPopup.asp?PresentationID=1814599&mode=presInfo" target="_blank" rel="noopener">View the CECU agenda →</a>
     </div>
 
     <div class="people-grid">
-      <div class="person">
-        <div class="person-photo">HEADSHOT</div>
-        <div class="person-body">
-          <div class="person-name">Brad Stephenson</div>
-          <div class="person-role">SVP, Marketing · Level Agency</div>
-          <p class="person-bio">Brad leads marketing strategy at Level. He focuses on how performance media and enrollment measurement need to evolve as AI changes the mechanics of how campaigns work and how results get attributed.</p>
+      <div class="person" tabindex="0">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <div class="person-photo">HEADSHOT</div>
+            <div class="person-body">
+              <div class="person-name">Brad Stephenson</div>
+              <div class="person-role">SVP, Marketing · Level Agency</div>
+            </div>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7 L17 17"/><path d="M17 10 L17 17 L10 17"/></svg></span>
+          </div>
+          <div class="flip-back">
+            <div class="person-name">Brad Stephenson</div>
+            <div class="person-role">SVP, Marketing · Level Agency</div>
+            <p class="person-bio">Brad leads marketing strategy at Level. He focuses on how performance media and enrollment measurement need to evolve as AI changes the mechanics of how campaigns work and how results get attributed.</p>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
+          </div>
         </div>
       </div>
-      <div class="person">
-        <div class="person-photo">HEADSHOT</div>
-        <div class="person-body">
-          <div class="person-name">Josh Muskin</div>
-          <div class="person-role">VP, Sales · Level Agency</div>
-          <p class="person-bio">Josh works directly with career college institutions on enrollment marketing programs. He's spent the past year studying what platform AI changes mean for inquiry quality and cost per enrolled student across the sector.</p>
+      <div class="person" tabindex="0">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <div class="person-photo">HEADSHOT</div>
+            <div class="person-body">
+              <div class="person-name">Josh Muskin</div>
+              <div class="person-role">VP, Sales · Level Agency</div>
+            </div>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7 L17 17"/><path d="M17 10 L17 17 L10 17"/></svg></span>
+          </div>
+          <div class="flip-back">
+            <div class="person-name">Josh Muskin</div>
+            <div class="person-role">VP, Sales · Level Agency</div>
+            <p class="person-bio">Josh works directly with career college institutions on enrollment marketing programs. He's spent the past year studying what platform AI changes mean for inquiry quality and cost per enrolled student across the sector.</p>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
+          </div>
         </div>
       </div>
-      <div class="person">
-        <div class="person-photo">HEADSHOT</div>
-        <div class="person-body">
-          <div class="person-name">Christopher Mercado, MBA, CAPM</div>
-          <div class="person-role">Director of Marketing, US Operations · Northbridge University</div>
-          <p class="person-bio">Christopher leads marketing for Northbridge University's US operations. He's presenting from the institution's seat: what it actually looks like to navigate platform and measurement changes when you're responsible for enrollment outcomes.</p>
+      <div class="person" tabindex="0">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <div class="person-photo">HEADSHOT</div>
+            <div class="person-body">
+              <div class="person-name">Christopher Mercado, MBA, CAPM</div>
+              <div class="person-role">Director of Marketing, US Operations · Northbridge University</div>
+            </div>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7 L17 17"/><path d="M17 10 L17 17 L10 17"/></svg></span>
+          </div>
+          <div class="flip-back">
+            <div class="person-name">Christopher Mercado</div>
+            <div class="person-role">Director of Marketing, US Operations · Northbridge University</div>
+            <p class="person-bio">Christopher leads marketing for Northbridge University's US operations. He's presenting from the institution's seat: what it actually looks like to navigate platform and measurement changes when you're responsible for enrollment outcomes.</p>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
+          </div>
         </div>
       </div>
     </div>
@@ -434,7 +532,7 @@
           <p class="lead" style="margin-top:1.25rem;">The report is built from actual campaign data, not surveys or estimates extrapolated from general higher ed research. If your team is evaluating your current cost per enrolled student against the market, or making the case for a budget or channel mix decision, this gives you a benchmark built from the same vertical you're operating in.</p>
           <p class="lead" style="margin-top:1.25rem;">Brad and Josh draw directly from this data in their Tuesday session. Download it before CECU and bring your questions to the floor. Physical copies available at Booth 611.</p>
           <div style="margin-top:2rem;">
-            <a class="btn btn-accent btn-lg" href="#" target="_blank" rel="noopener">Download the 2026 EDU Benchmarks Report</a>
+            <button type="button" class="btn btn-accent btn-lg" onclick="openReportModal()">Download the 2026 EDU Benchmarks Report</button>
           </div>
         </div>
         <div>
@@ -483,52 +581,112 @@
     <h2>Come find us in Cleveland.</h2>
     <p class="lead">The Level team will be at Booth 611 all three days. Here's who you'll meet.</p>
     <div class="team-grid">
-      <div class="person team-card">
-        <div class="person-photo">HEADSHOT</div>
-        <div class="person-body">
-          <div class="person-name">Bill Buchanan</div>
-          <div class="person-role">President</div>
-          <p class="person-bio placeholder">[Bio to be added]</p>
+      <div class="person team-card" tabindex="0">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <div class="person-photo">HEADSHOT</div>
+            <div class="person-body">
+              <div class="person-name">Bill Buchanan</div>
+              <div class="person-role">President</div>
+            </div>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7 L17 17"/><path d="M17 10 L17 17 L10 17"/></svg></span>
+          </div>
+          <div class="flip-back">
+            <div class="person-name">Bill Buchanan</div>
+            <div class="person-role">President</div>
+            <p class="person-bio placeholder">[Bio to be added]</p>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
+          </div>
         </div>
       </div>
-      <div class="person team-card">
-        <div class="person-photo">HEADSHOT</div>
-        <div class="person-body">
-          <div class="person-name">Lisa Hurst</div>
-          <div class="person-role">Chief Client Officer</div>
-          <p class="person-bio placeholder">[Bio to be added]</p>
+      <div class="person team-card" tabindex="0">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <div class="person-photo">HEADSHOT</div>
+            <div class="person-body">
+              <div class="person-name">Lisa Hurst</div>
+              <div class="person-role">Chief Client Officer</div>
+            </div>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7 L17 17"/><path d="M17 10 L17 17 L10 17"/></svg></span>
+          </div>
+          <div class="flip-back">
+            <div class="person-name">Lisa Hurst</div>
+            <div class="person-role">Chief Client Officer</div>
+            <p class="person-bio placeholder">[Bio to be added]</p>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
+          </div>
         </div>
       </div>
-      <div class="person team-card">
-        <div class="person-photo">HEADSHOT</div>
-        <div class="person-body">
-          <div class="person-name">Sarah Vader</div>
-          <div class="person-role">VP, Client Services</div>
-          <p class="person-bio placeholder">[Bio to be added]</p>
+      <div class="person team-card" tabindex="0">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <div class="person-photo">HEADSHOT</div>
+            <div class="person-body">
+              <div class="person-name">Sarah Vader</div>
+              <div class="person-role">VP, Client Services</div>
+            </div>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7 L17 17"/><path d="M17 10 L17 17 L10 17"/></svg></span>
+          </div>
+          <div class="flip-back">
+            <div class="person-name">Sarah Vader</div>
+            <div class="person-role">VP, Client Services</div>
+            <p class="person-bio placeholder">[Bio to be added]</p>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
+          </div>
         </div>
       </div>
-      <div class="person team-card">
-        <div class="person-photo">HEADSHOT</div>
-        <div class="person-body">
-          <div class="person-name">Brad Stephenson</div>
-          <div class="person-role">SVP, Marketing</div>
-          <p class="person-bio">Brad leads marketing strategy at Level, focused on how performance media and enrollment measurement evolve as AI reshapes how campaigns work.</p>
+      <div class="person team-card" tabindex="0">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <div class="person-photo">HEADSHOT</div>
+            <div class="person-body">
+              <div class="person-name">Brad Stephenson</div>
+              <div class="person-role">SVP, Marketing</div>
+            </div>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7 L17 17"/><path d="M17 10 L17 17 L10 17"/></svg></span>
+          </div>
+          <div class="flip-back">
+            <div class="person-name">Brad Stephenson</div>
+            <div class="person-role">SVP, Marketing</div>
+            <p class="person-bio">Brad leads marketing strategy at Level, focused on how performance media and enrollment measurement evolve as AI reshapes how campaigns work.</p>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
+          </div>
         </div>
       </div>
-      <div class="person team-card">
-        <div class="person-photo">HEADSHOT</div>
-        <div class="person-body">
-          <div class="person-name">Josh Muskin</div>
-          <div class="person-role">VP, Sales</div>
-          <p class="person-bio">Josh partners with career college institutions on enrollment marketing programs and how AI changes inquiry quality and cost per enrolled student.</p>
+      <div class="person team-card" tabindex="0">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <div class="person-photo">HEADSHOT</div>
+            <div class="person-body">
+              <div class="person-name">Josh Muskin</div>
+              <div class="person-role">VP, Sales</div>
+            </div>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7 L17 17"/><path d="M17 10 L17 17 L10 17"/></svg></span>
+          </div>
+          <div class="flip-back">
+            <div class="person-name">Josh Muskin</div>
+            <div class="person-role">VP, Sales</div>
+            <p class="person-bio">Josh partners with career college institutions on enrollment marketing programs and how AI changes inquiry quality and cost per enrolled student.</p>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
+          </div>
         </div>
       </div>
-      <div class="person team-card">
-        <div class="person-photo">HEADSHOT</div>
-        <div class="person-body">
-          <div class="person-name">Lindsey Newman</div>
-          <div class="person-role">AVP, Sales and Marketing</div>
-          <p class="person-bio placeholder">[Bio to be added]</p>
+      <div class="person team-card" tabindex="0">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <div class="person-photo">HEADSHOT</div>
+            <div class="person-body">
+              <div class="person-name">Lindsey Newman</div>
+              <div class="person-role">AVP, Sales and Marketing</div>
+            </div>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7 L17 17"/><path d="M17 10 L17 17 L10 17"/></svg></span>
+          </div>
+          <div class="flip-back">
+            <div class="person-name">Lindsey Newman</div>
+            <div class="person-role">AVP, Sales and Marketing</div>
+            <p class="person-bio placeholder">[Bio to be added]</p>
+            <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
+          </div>
         </div>
       </div>
     </div>
@@ -553,6 +711,51 @@
     <p class="lead" style="margin:1rem auto 2rem;">Book time with the Level team before the convention, come find us at Booth 611, or catch the session in Room 6 Tuesday at 3:30. We're glad to be here, and this is a conversation worth having.</p>
     <a class="btn btn-primary btn-lg" href="#book">Book time with our team</a>
   </section>
+
+  <!-- ============ REPORT DOWNLOAD MODAL ============ -->
+  <!-- TEST FORM ONLY. On build, wire submitReport() to push the lead into HubSpot, then serve the gated PDF. -->
+  <div class="modal-overlay" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle">
+    <div class="modal-box">
+      <button class="modal-close-x" aria-label="Close" onclick="closeReportModal()">&times;</button>
+
+      <div id="reportFormView">
+        <h3 id="reportModalTitle">Get the 2026 EDU Benchmarks Report</h3>
+        <p class="sub">Tell us where to send it and you'll get instant access.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="r_fn">First name *</label>
+            <input class="form-input" id="r_fn" type="text" placeholder="First name">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="r_ln">Last name *</label>
+            <input class="form-input" id="r_ln" type="text" placeholder="Last name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="r_title">Title *</label>
+          <input class="form-input" id="r_title" type="text" placeholder="Your title">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="r_company">Company *</label>
+          <input class="form-input" id="r_company" type="text" placeholder="Your institution or company">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="r_email">Email *</label>
+          <input class="form-input" id="r_email" type="email" placeholder="you@institution.edu">
+        </div>
+        <button class="btn btn-primary btn-lg" style="width:100%;" onclick="submitReport()">Get the report</button>
+        <button class="modal-close-link" onclick="closeReportModal()">Close this window</button>
+      </div>
+
+      <div class="modal-success" id="reportSuccessView">
+        <div class="check">✓</div>
+        <h3>Thanks, your report is ready.</h3>
+        <p class="sub" style="margin-bottom:0.5rem;">We've also sent a copy to your inbox.</p>
+        <a class="btn btn-primary btn-lg" href="#" target="_blank" rel="noopener">Download the report</a>
+        <div><button class="modal-close-link" onclick="closeReportModal()">Close this window</button></div>
+      </div>
+    </div>
+  </div>
 
   <!-- ============ FOOTER ============ -->
   <footer>
@@ -582,10 +785,43 @@
       document.getElementById('formBody').style.display = 'none';
       document.getElementById('formSuccess').style.display = 'block';
     }
+
     // Close mobile menu when a link is tapped
     document.querySelectorAll('#navLinks a').forEach(function(a){
       a.addEventListener('click', function(){ document.getElementById('navLinks').classList.remove('open'); });
     });
+
+    // Flip cards: click or keyboard toggles the bio side
+    document.querySelectorAll('.person').forEach(function(card){
+      card.addEventListener('click', function(){ card.classList.toggle('flipped'); });
+      card.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.classList.toggle('flipped'); }
+      });
+    });
+
+    // Gated report download modal
+    var reportModal = document.getElementById('reportModal');
+    function openReportModal() {
+      document.getElementById('reportFormView').style.display = 'block';
+      document.getElementById('reportSuccessView').style.display = 'none';
+      reportModal.classList.add('open');
+    }
+    function closeReportModal() { reportModal.classList.remove('open'); }
+    function submitReport() {
+      // TEST FORM ONLY. On build, send these fields to HubSpot before revealing the download.
+      var fields = ['r_fn','r_ln','r_title','r_company','r_email'];
+      for (var i = 0; i < fields.length; i++) {
+        if (!document.getElementById(fields[i]).value.trim()) {
+          alert('Please complete all fields. They are all required.');
+          return;
+        }
+      }
+      document.getElementById('reportFormView').style.display = 'none';
+      document.getElementById('reportSuccessView').style.display = 'block';
+    }
+    // Close modal on backdrop click or Escape
+    reportModal.addEventListener('click', function(e){ if (e.target === reportModal) closeReportModal(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeReportModal(); });
   </script>
 </body>
 </html>
