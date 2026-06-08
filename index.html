@@ -218,21 +218,21 @@
     }
 
     /* Presenter + team cards (flip) */
-    .people-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 2.5rem; }
+    .people-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2.5rem; }
     .person {
-      position: relative; height: 432px;
+      position: relative;
       perspective: 1500px; cursor: pointer;
       border-radius: var(--radius-lg);
     }
     .person:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
     .flip-inner {
-      position: relative; width: 100%; height: 100%;
+      position: relative; display: grid;
       transition: transform 0.6s cubic-bezier(.2,.7,.2,1);
       transform-style: preserve-3d;
     }
     .person.flipped .flip-inner { transform: rotateY(180deg); }
     .flip-front, .flip-back {
-      position: absolute; inset: 0;
+      grid-area: 1 / 1;
       -webkit-backface-visibility: hidden; backface-visibility: hidden;
       background: #fff; border: 1px solid var(--color-border);
       border-radius: var(--radius-lg); overflow: hidden;
@@ -243,12 +243,12 @@
       padding: 1.5rem 1.5rem 2.6rem;
     }
     .person-photo {
-      height: 252px; width: 100%; flex: none;
+      aspect-ratio: 1 / 1; width: 100%; flex: none;
       background: repeating-linear-gradient(135deg, #EDEFF6, #EDEFF6 12px, #E4E8F3 12px, #E4E8F3 24px);
       display: flex; align-items: center; justify-content: center;
       color: #9aa3b8; font-family: var(--font-display); font-weight: 700; font-size: 0.78rem; letter-spacing: 0.05em;
     }
-    .person-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .person-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
     .flip-front .person-body { padding: 1.1rem 1.25rem; }
     .person-name { font-family: var(--font-display); font-weight: 900; font-size: 1.1rem; line-height: 1.15; }
     .person-role { font-size: 0.85rem; color: #6B7280; margin-bottom: 0.6rem; font-weight: 600; }
@@ -261,8 +261,6 @@
     .flip-cue svg { width: 100%; height: 100%; display: block; }
 
     .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2.5rem; }
-    .person.team-card { height: 366px; }
-    .person.team-card .person-photo { height: 218px; }
 
     /* Gated download modal */
     .modal-overlay {
@@ -349,6 +347,7 @@
       .hero-grid { grid-template-columns: 1fr; gap: 2rem; padding-bottom: 5rem; }
       .benchmarks-wrap { grid-template-columns: 1fr; gap: 2rem; }
       .report-cover { max-width: 320px; }
+      .people-grid { grid-template-columns: repeat(2, 1fr); }
       .team-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 860px) {
@@ -469,15 +468,15 @@
           <div class="flip-front">
             <div class="person-photo">HEADSHOT</div>
             <div class="person-body">
-              <div class="person-name">Brad Stephenson</div>
-              <div class="person-role">SVP, Marketing · Level Agency</div>
+              <div class="person-name">Christopher Mercado, MBA, CAPM</div>
+              <div class="person-role">Director of Marketing, US Operations · Northbridge University</div>
             </div>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7 L17 17"/><path d="M17 10 L17 17 L10 17"/></svg></span>
           </div>
           <div class="flip-back">
-            <div class="person-name">Brad Stephenson</div>
-            <div class="person-role">SVP, Marketing · Level Agency</div>
-            <p class="person-bio">Brad leads marketing strategy at Level. He focuses on how performance media and enrollment measurement need to evolve as AI changes the mechanics of how campaigns work and how results get attributed.</p>
+            <div class="person-name">Christopher Mercado</div>
+            <div class="person-role">Director of Marketing, US Operations · Northbridge University</div>
+            <p class="person-bio">Christopher leads marketing for Northbridge University's US operations. He's presenting from the institution's seat: what it actually looks like to navigate platform and measurement changes when you're responsible for enrollment outcomes.</p>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
           </div>
         </div>
@@ -485,7 +484,7 @@
       <div class="person" tabindex="0">
         <div class="flip-inner">
           <div class="flip-front">
-            <div class="person-photo">HEADSHOT</div>
+            <div class="person-photo"><img src="https://www.level.agency/wp-content/uploads/2024/05/josh-muskin.png" alt="Josh Muskin" loading="lazy"></div>
             <div class="person-body">
               <div class="person-name">Josh Muskin</div>
               <div class="person-role">VP, Sales · Level Agency</div>
@@ -503,17 +502,17 @@
       <div class="person" tabindex="0">
         <div class="flip-inner">
           <div class="flip-front">
-            <div class="person-photo">HEADSHOT</div>
+            <div class="person-photo"><img src="https://www.level.agency/wp-content/uploads/2022/12/brad-stephenson.png" alt="Brad Stephenson" loading="lazy"></div>
             <div class="person-body">
-              <div class="person-name">Christopher Mercado, MBA, CAPM</div>
-              <div class="person-role">Director of Marketing, US Operations · Northbridge University</div>
+              <div class="person-name">Brad Stephenson</div>
+              <div class="person-role">SVP, Marketing · Level Agency</div>
             </div>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7 L17 17"/><path d="M17 10 L17 17 L10 17"/></svg></span>
           </div>
           <div class="flip-back">
-            <div class="person-name">Christopher Mercado</div>
-            <div class="person-role">Director of Marketing, US Operations · Northbridge University</div>
-            <p class="person-bio">Christopher leads marketing for Northbridge University's US operations. He's presenting from the institution's seat: what it actually looks like to navigate platform and measurement changes when you're responsible for enrollment outcomes.</p>
+            <div class="person-name">Brad Stephenson</div>
+            <div class="person-role">SVP, Marketing · Level Agency</div>
+            <p class="person-bio">Brad leads marketing strategy at Level. He focuses on how performance media and enrollment measurement need to evolve as AI changes the mechanics of how campaigns work and how results get attributed.</p>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
           </div>
         </div>
@@ -584,7 +583,7 @@
       <div class="person team-card" tabindex="0">
         <div class="flip-inner">
           <div class="flip-front">
-            <div class="person-photo">HEADSHOT</div>
+            <div class="person-photo"><img src="https://www.level.agency/wp-content/uploads/2023/12/bill-buchanan.png" alt="Bill Buchanan" loading="lazy"></div>
             <div class="person-body">
               <div class="person-name">Bill Buchanan</div>
               <div class="person-role">President</div>
@@ -594,7 +593,7 @@
           <div class="flip-back">
             <div class="person-name">Bill Buchanan</div>
             <div class="person-role">President</div>
-            <p class="person-bio placeholder">[Bio to be added]</p>
+            <p class="person-bio">Bill brings more than 25 years of direct response marketing experience and joined Level through Becker Media in 2015. He has run every major channel from direct mail to digital, always focused on driving profitable growth.</p>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
           </div>
         </div>
@@ -602,7 +601,7 @@
       <div class="person team-card" tabindex="0">
         <div class="flip-inner">
           <div class="flip-front">
-            <div class="person-photo">HEADSHOT</div>
+            <div class="person-photo"><img src="https://www.level.agency/wp-content/uploads/2026/03/lisa-hurst.jpg" alt="Lisa Hurst" loading="lazy"></div>
             <div class="person-body">
               <div class="person-name">Lisa Hurst</div>
               <div class="person-role">Chief Client Officer</div>
@@ -612,7 +611,7 @@
           <div class="flip-back">
             <div class="person-name">Lisa Hurst</div>
             <div class="person-role">Chief Client Officer</div>
-            <p class="person-bio placeholder">[Bio to be added]</p>
+            <p class="person-bio">Lisa leads Level's client services organization, with nearly three decades building client partnerships for brands including Starbucks, Google, and Nestlé. She believes brand building and demand generation work best as one system.</p>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
           </div>
         </div>
@@ -620,7 +619,7 @@
       <div class="person team-card" tabindex="0">
         <div class="flip-inner">
           <div class="flip-front">
-            <div class="person-photo">HEADSHOT</div>
+            <div class="person-photo"><img src="https://www.level.agency/wp-content/uploads/2023/12/sarah-vader.png" alt="Sarah Vader" loading="lazy"></div>
             <div class="person-body">
               <div class="person-name">Sarah Vader</div>
               <div class="person-role">VP, Client Services</div>
@@ -630,7 +629,7 @@
           <div class="flip-back">
             <div class="person-name">Sarah Vader</div>
             <div class="person-role">VP, Client Services</div>
-            <p class="person-bio placeholder">[Bio to be added]</p>
+            <p class="person-bio">Sarah joined Level through Becker Media in 2013 and brings more than two decades of direct response marketing experience, much of it in higher education. She pairs strategy with creative to deliver results for clients.</p>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
           </div>
         </div>
@@ -638,7 +637,7 @@
       <div class="person team-card" tabindex="0">
         <div class="flip-inner">
           <div class="flip-front">
-            <div class="person-photo">HEADSHOT</div>
+            <div class="person-photo"><img src="https://www.level.agency/wp-content/uploads/2022/12/brad-stephenson.png" alt="Brad Stephenson" loading="lazy"></div>
             <div class="person-body">
               <div class="person-name">Brad Stephenson</div>
               <div class="person-role">SVP, Marketing</div>
@@ -656,7 +655,7 @@
       <div class="person team-card" tabindex="0">
         <div class="flip-inner">
           <div class="flip-front">
-            <div class="person-photo">HEADSHOT</div>
+            <div class="person-photo"><img src="https://www.level.agency/wp-content/uploads/2024/05/josh-muskin.png" alt="Josh Muskin" loading="lazy"></div>
             <div class="person-body">
               <div class="person-name">Josh Muskin</div>
               <div class="person-role">VP, Sales</div>
@@ -674,7 +673,7 @@
       <div class="person team-card" tabindex="0">
         <div class="flip-inner">
           <div class="flip-front">
-            <div class="person-photo">HEADSHOT</div>
+            <div class="person-photo"><img src="https://www.level.agency/wp-content/uploads/2026/04/lindsey-newman.jpg" alt="Lindsey Newman" loading="lazy"></div>
             <div class="person-body">
               <div class="person-name">Lindsey Newman</div>
               <div class="person-role">AVP, Sales and Marketing</div>
@@ -684,7 +683,7 @@
           <div class="flip-back">
             <div class="person-name">Lindsey Newman</div>
             <div class="person-role">AVP, Sales and Marketing</div>
-            <p class="person-bio placeholder">[Bio to be added]</p>
+            <p class="person-bio">Lindsey has spent more than 15 years in advertising and marketing, helping companies grow through strategic storytelling and new business development. Her experience spans higher education, lead generation, and Fortune 500 brands.</p>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
           </div>
         </div>
