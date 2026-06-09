@@ -17,6 +17,33 @@
     h1, h2, h3, h4, h5, h6, p, figure { margin: 0; }
 
     /* ============================================
+       PASSWORD GATE (temporary)
+       ============================================ */
+    #pwGate {
+      position: fixed; inset: 0; z-index: 100000;
+      display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+      background:
+        radial-gradient(900px 500px at 50% -10%, rgba(134,213,244,0.18), transparent 60%),
+        linear-gradient(180deg, #0a0e17 0%, #0e1f33 60%, #0a0e17 100%);
+    }
+    .pw-card {
+      width: 100%; max-width: 400px; background: #fff; color: #000;
+      border-radius: 0.75rem; padding: 2.25rem; text-align: center;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.45);
+      font-family: "DM Sans", sans-serif;
+    }
+    .pw-eyebrow { font-family: "Inter Tight", sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: #6B7280; }
+    .pw-card h2 { font-family: "Inter Tight", sans-serif; font-weight: 900; font-size: 1.4rem; margin: 0.5rem 0 0.35rem; }
+    .pw-card p { font-size: 0.9rem; color: #6B7280; margin-bottom: 1.25rem; }
+    .pw-card input {
+      width: 100%; box-sizing: border-box; padding: 0.7rem 0.85rem;
+      border: 1px solid #D9DEF0; border-radius: 0.375rem;
+      font-family: "DM Sans", sans-serif; font-size: 0.95rem; margin-bottom: 0.75rem;
+    }
+    .pw-card input:focus { outline: none; border-color: #86D5F4; box-shadow: 0 0 0 3px rgba(134,213,244,0.25); }
+    .pw-err { display: none; color: #b32d2e; font-size: 0.82rem; margin-bottom: 0.6rem; }
+
+    /* ============================================
        LEVEL BRAND FOUNDATION (from brand.css)
        ============================================ */
     :root {
@@ -368,6 +395,38 @@
 </head>
 <body>
 
+  <!-- ============ PASSWORD GATE (temporary, client-side) ============ -->
+  <div id="pwGate">
+    <div class="pw-card">
+      <p class="pw-eyebrow">Level Agency · CECU 2026</p>
+      <h2>This page is password protected</h2>
+      <p>Enter the password to continue.</p>
+      <input id="pwInput" type="password" placeholder="Password" autocomplete="off" aria-label="Password">
+      <div class="pw-err" id="pwErr">Incorrect password. Please try again.</div>
+      <button class="btn btn-primary btn-lg" style="width:100%;" id="pwBtn">Enter</button>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var GATE_PW = "levelcecu2026";
+      var gate = document.getElementById('pwGate');
+      var input = document.getElementById('pwInput');
+      var err = document.getElementById('pwErr');
+      document.documentElement.style.overflow = 'hidden';
+      function unlock() {
+        gate.style.display = 'none';
+        document.documentElement.style.overflow = '';
+      }
+      function attempt() {
+        if (input.value === GATE_PW) { unlock(); }
+        else { err.style.display = 'block'; input.value = ''; input.focus(); }
+      }
+      document.getElementById('pwBtn').addEventListener('click', attempt);
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') attempt(); });
+      input.focus();
+    })();
+  </script>
+
   <!-- ============ NAV ============ -->
   <header class="header">
     <a href="#top" aria-label="Level Agency home">
@@ -399,41 +458,33 @@
 
       <!-- ============ BOOKING FORM (above the fold) ============ -->
       <div class="form-card" id="book">
-        <div id="formBody">
-          <h2>Book time with the Level team at CECU</h2>
-          <p style="font-size:0.88rem;color:#6B7280;margin-bottom:1.25rem;">Tell us a bit about you and we'll lock in a time.</p>
-          <!-- NOTE on build: wire this submit to the sales-rep routing tool (e.g. Chili Piper) the LeadsCon page uses. -->
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="fn">First name</label>
-              <input class="form-input" id="fn" type="text" placeholder="First name">
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="ln">Last name</label>
-              <input class="form-input" id="ln" type="text" placeholder="Last name">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="em">Email</label>
-            <input class="form-input" id="em" type="email" placeholder="you@institution.edu">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="inst">Institution name</label>
-            <input class="form-input" id="inst" type="text" placeholder="Your institution">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="disc">What would you like to discuss? <span style="font-weight:400;color:#9CA3AF;">(optional)</span></label>
-            <textarea class="form-textarea" id="disc" placeholder="Enrollment goals, channel mix, measurement..."></textarea>
-          </div>
-          <button class="btn btn-primary btn-lg" style="width:100%;" onclick="submitMeeting()">Request a meeting</button>
-          <p class="form-note">Our team will confirm your meeting time before the convention. Prefer to find us in the moment? We're at Booth 611 all three days, June 22–24.</p>
-        </div>
-        <div class="form-success" id="formSuccess">
-          <div class="check">✓</div>
-          <h2 style="font-size:1.3rem;margin-bottom:0.4rem;">Request received.</h2>
-          <p style="font-size:0.9rem;color:#374151;">Thanks. Our team will reach out to confirm a time before CECU. See you at Booth 611.</p>
-        </div>
+        <h2>Book time with the Level team at CECU</h2>
+        <p style="font-size:0.88rem;color:#6B7280;margin-bottom:1.25rem;">Tell us a bit about you and we'll lock in a time.</p>
+        <div id="hubspotForm"></div>
+        <p class="form-note">Our team will confirm your meeting time before the convention. Prefer to find us in the moment? We're at Booth 611 all three days, June 22–24.</p>
       </div>
+      <script>
+        (function () {
+          var s = document.createElement('script');
+          s.src = 'https://js.hsforms.net/forms/embed/v2.js';
+          s.charset = 'utf-8';
+          s.onload = function () {
+            if (window.hbspt) {
+              hbspt.forms.create({
+                portalId: "297156",
+                formId: "93db64fd-b301-40d8-8ab9-ce1eed760b62",
+                region: "na1",
+                target: "#hubspotForm"
+              });
+            }
+          };
+          s.onerror = function () {
+            var el = document.getElementById('hubspotForm');
+            if (el) el.innerHTML = '<p style="font-size:0.9rem;color:#6B7280;">The booking form is taking a moment to load. If it does not appear, find us at Booth 611 or reach out to the Level team directly.</p>';
+          };
+          document.head.appendChild(s);
+        })();
+      </script>
     </div>
   </section>
 
@@ -494,7 +545,7 @@
           <div class="flip-back">
             <div class="person-name">Josh Muskin</div>
             <div class="person-role">VP, Sales · Level Agency</div>
-            <p class="person-bio">Josh works directly with career college institutions on enrollment marketing programs. He's spent the past year studying what platform AI changes mean for inquiry quality and cost per enrolled student across the sector.</p>
+            <p class="person-bio">Josh brings over a decade of expertise guiding C-suite executives on digital marketing strategy, media diversification, and market insights, with a strong record of driving net-new revenue growth.</p>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
           </div>
         </div>
@@ -512,7 +563,7 @@
           <div class="flip-back">
             <div class="person-name">Brad Stephenson</div>
             <div class="person-role">SVP, Marketing · Level Agency</div>
-            <p class="person-bio">Brad leads marketing strategy at Level. He focuses on how performance media and enrollment measurement need to evolve as AI changes the mechanics of how campaigns work and how results get attributed.</p>
+            <p class="person-bio">Brad blends creative and analytical skills, with a data-focused master's from Carnegie Mellon and a background in acting and journalism. He brings more than 20 years of digital marketing experience and leads marketing strategy at Level.</p>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
           </div>
         </div>
@@ -647,7 +698,7 @@
           <div class="flip-back">
             <div class="person-name">Brad Stephenson</div>
             <div class="person-role">SVP, Marketing</div>
-            <p class="person-bio">Brad leads marketing strategy at Level, focused on how performance media and enrollment measurement evolve as AI reshapes how campaigns work.</p>
+            <p class="person-bio">Brad blends creative and analytical skills, with a data-focused master's from Carnegie Mellon and a background in acting and journalism. He brings more than 20 years of digital marketing experience and leads marketing strategy at Level.</p>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
           </div>
         </div>
@@ -665,7 +716,7 @@
           <div class="flip-back">
             <div class="person-name">Josh Muskin</div>
             <div class="person-role">VP, Sales</div>
-            <p class="person-bio">Josh partners with career college institutions on enrollment marketing programs and how AI changes inquiry quality and cost per enrolled student.</p>
+            <p class="person-bio">Josh brings over a decade of expertise guiding C-suite executives on digital marketing strategy, media diversification, and market insights, with a strong record of driving net-new revenue growth.</p>
             <span class="flip-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17 L7 7"/><path d="M7 14 L7 7 L14 7"/></svg></span>
           </div>
         </div>
@@ -773,18 +824,6 @@
   </footer>
 
   <script>
-    function submitMeeting() {
-      // Lightweight validation. On deploy, route this to the sales-rep booking tool (Chili Piper) instead.
-      var first = document.getElementById('fn').value.trim();
-      var email = document.getElementById('em').value.trim();
-      if (!first || !email) {
-        alert('Please add at least your first name and email so we can confirm a time.');
-        return;
-      }
-      document.getElementById('formBody').style.display = 'none';
-      document.getElementById('formSuccess').style.display = 'block';
-    }
-
     // Close mobile menu when a link is tapped
     document.querySelectorAll('#navLinks a').forEach(function(a){
       a.addEventListener('click', function(){ document.getElementById('navLinks').classList.remove('open'); });
